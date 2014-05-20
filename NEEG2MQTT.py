@@ -38,14 +38,13 @@ if __name__ == '__main__':
 
 
 	#Load basic config. 
-	Name = config.get("PlugwiseOptions","Name")
 	ip = config.get("MQTTServer","Address")
 	port = config.get("MQTTServer","Port")
 	user = config.get("MQTTServer","User")
 	password = config.get("MQTTServer","Password")
 	prefix = config.get("MQTTServer","Prefix")
 
-
+	
 
 	
 	
