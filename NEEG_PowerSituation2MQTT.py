@@ -70,8 +70,15 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
 		return 
 			
 	def TranslateAndTransmitt(self,data):
+		timestamp = data['MeasuredAt']
 		
+		#If this is old data ignore it. 
+		if timestamp == self.lasttimestamp:
+			return
 
+		self.lasttimestamp = timestamp
+		
+		
 
 if __name__ == '__main__':
 
