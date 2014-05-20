@@ -40,19 +40,34 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
 
 	def RunCollection(self):
 		while(self.running):
+			
+			#Mark the time
+			now = time.time()
+			
 			#Get data
 			r = requests.get('http://driftsdata.statnett.no/restapi/ProductionConsumption/GetLatestDetailedOverview')
-			now = time.time()
+			
 
 			#If we failed retry in a while
 			if r.status_code != 200:
 				print "Failed to get data from Nordic Electric Energy grid"
 				time.sleep(30)
 				continue
+			
+			self.lastupdate = now
 
 			data = r.json()
 			
 			self.TranslateAndTransmitt(data)
+			
+			nextUpdate = self.lastupdate + self.updateperiod
+			
+			timeToNext = nextUpdate - time.time()
+			
+			if timeToNext > 0:
+				time.sleep(timeToNext)
+	
+		return 
 			
 	def TranslateAndTransmitt(self,data):
 		
