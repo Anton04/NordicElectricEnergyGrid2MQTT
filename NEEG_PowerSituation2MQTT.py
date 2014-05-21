@@ -117,14 +117,14 @@ if __name__ == '__main__':
 	try:
 		ConfigFile = sys.argv[1]
 	except:
-		ConfigFile = path + "/Plugwise2MQTT.cfg"
+		ConfigFile = path + "/NEEG2MQTT.conf"
 
 	try:
 		f = open(ConfigFile,"r")
 		f.close()
 	except:
 		try:
-			ConfigFile = path + "/Plugwise2MQTT.cfg"
+			ConfigFile = path + "/NEEG2MQTT.conf"
 			f = open(ConfigFile,"r")
                 	f.close()
 		except:
@@ -142,7 +142,7 @@ if __name__ == '__main__':
 	prefix = config.get("MQTTServer","Prefix")
 
 	#Create the data collector the power situation
-	neeg2mqtt = NEEG_DataCollector(ip, port, clientId = "NEEG2MQTT", user, password)
+	neeg2mqtt = NEEG_DataCollector(ip, port,"NEEG2MQTT", user, password)
 	
 	neeg2mqtt.RunCollection()
 	
