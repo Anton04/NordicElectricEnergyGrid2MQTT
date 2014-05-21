@@ -8,7 +8,7 @@ import requests
 import time
 
 class NEEG_DataCollector(mosquitto.Mosquitto):
-	def __init__(self,ip = "localhost", port = 1883, clientId = "NEEG2MQTT", user = "driver", password = "1234", prefix = "ElectricGridData", device = "/dev/ttyUSB0"):
+	def __init__(self,ip = "localhost", port = 1883, clientId = "NEEG2MQTT", user = "driver", password = "1234", prefix = "ElectricGridData"):
 
 		mosquitto.Mosquitto.__init__(self,clientId)
 
@@ -141,6 +141,11 @@ if __name__ == '__main__':
 	password = config.get("MQTTServer","Password")
 	prefix = config.get("MQTTServer","Prefix")
 
+	#Create the data collector the power situation
+	neeg2mqtt = NEEG_DataCollector(ip, port, clientId = "NEEG2MQTT", user, password)
+	
+	neeg2mqtt.RunCollection()
+	
 	
 
 	
