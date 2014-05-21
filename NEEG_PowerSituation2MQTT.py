@@ -33,6 +33,7 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
     		self.lastupdate = 0
     		self.lasttimestamp = 0
     		self.updateperiod = 120
+    		self.oldvalues = {}
     		self.running = True
 
 		#thread.start_new_thread(self.ControlLoop,())	
@@ -78,7 +79,32 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
 
 		self.lasttimestamp = timestamp
 		
+		datadic = {}
 		
+		for category in data:
+    			if type(data[category]) == type([]):
+        			for item in data[category]:
+        				#Abort if junk
+            				if item[u'value'] == None or item[u'value'] == "" or item[u'titleTranslationId'] == None:
+                				continue
+            				topic = prefix + "/" + category + "/" +item[u'titleTranslationId']
+            				value = item[u'value'].replace(u"\xa0","")
+		
+					#Has this topic existed before			
+					if topic in self.oldvalues:
+						#If yes do we have a new value?
+						if self.oldvalues[topic] == value:
+							#Same value ignore
+							continue
+					
+					#Update 
+					update = json.dumps({"time":timestamp,"value":value})
+					self.publish(topic,update)
+					
+					#Save new value
+					self.oldvalues[topic] = value
+					
+		return 
 
 if __name__ == '__main__':
 
