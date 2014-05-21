@@ -39,6 +39,14 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
 		#thread.start_new_thread(self.ControlLoop,())	
 		self.loop_start()
 
+	def mqtt_on_connect(self, selfX,mosq, result):
+    		print "MQTT connected!"
+    		#self.subscribe(self.prefix + "/#", 0)
+    
+  	def mqtt_on_message(self, selfX,mosq, msg):
+    		#print("RECIEVED MQTT MESSAGE: "+msg.topic + " " + str(msg.payload))
+    		return
+    	
 	def RunCollection(self):
 		while(self.running):
 			
