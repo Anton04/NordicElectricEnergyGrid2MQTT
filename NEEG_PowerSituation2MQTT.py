@@ -98,22 +98,55 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
             				topic = prefix + "/" + category + "/" +item[u'titleTranslationId']
             				value = item[u'value'].replace(u"\xa0","")
 		
-					#Has this topic existed before			
-					if topic in self.oldvalues:
-						#If yes do we have a new value?
-						if self.oldvalues[topic] == value:
-							#Same value ignore
-							continue
+					#Publish
+					self.PublishIfNew(timestamp,topic,value)
+				
 					
-					#Update 
-					update = json.dumps({"time":timestamp,"value":value})
-					self.publish(topic,update)
-					
-					#Save new value
-					self.oldvalues[topic] = value
+		self.DoDataAnalysis(timestamp)	
+		
+		#Send a message that the update is complete. This is used by stuff that needs all new data before making som calculation. 
+		topic = prefix + "/LastUpdate"
+		self.publish(topic,timestamp)
+		
 					
 		return 
 
+	def publishIfNew(self,timestamp,topic,value):
+		#Has this topic existed before			
+		if topic in self.oldvalues:
+			#If yes do we have a new value?
+			if self.oldvalues[topic] == value:
+				#Same value ignore
+				return False
+						
+			update = json.dumps({"time":timestamp,"value":value})
+			self.publish(topic,update)
+					
+			#Save new value
+			self.oldvalues[topic] = value
+			
+		return True
+
+		
+	def DoDataAnalysis(timestamp):
+		#Renewable
+		try:
+			totalHydro = int(self.oldvalues[ElectricGridData/HydroData/ProductionConsumption.HydroTotalDesc])
+			totalWind = int(self.oldvalues[ElectricGridData/WindData/ProductionConsumption.WindTotalDesc])
+			totalProd = int(self.oldvalues[ElectricGridData/ProductionData/ProductionConsumption.ProductionTotalDesc])
+			
+			totalRenewable = float(totalHydro + totalWind)
+			ratioRenewable = totalRenewable/totalProd
+			
+			topic = prefix + "/" + "RenewableEnergy/TotalProduction"
+			self.publishIfNew(timestamp, topic, totalRenewable)
+			
+			topic = prefix + "/" + "RenewableEnergy/Ratio"
+			self.publishIfNew(timestamp, topic, ratioRenewable)
+			
+		except 	Exception,e: print str(e)
+			return 
+	
 if __name__ == '__main__':
 
 
