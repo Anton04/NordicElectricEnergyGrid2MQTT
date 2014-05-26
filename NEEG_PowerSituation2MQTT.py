@@ -103,6 +103,11 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
 				
 					
 		self.DoDataAnalysis(timestamp)	
+		
+		#Send a message that the update is complete. This is used by stuff that needs all new data before making som calculation. 
+		topic = prefix + "/LastUpdate"
+		self.publish(topic,timestamp)
+		
 					
 		return 
 
@@ -133,10 +138,13 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
 			totalRenewable = float(totalHydro + totalWind)
 			ratioRenewable = totalRenewable/totalProd
 			
-			topic = prefix + "/" + "RenewableEnerg/TotalProduction"
+			topic = prefix + "/" + "RenewableEnergy/TotalProduction"
+			self.publishIfNew(timestamp, topic, totalRenewable)
 			
+			topic = prefix + "/" + "RenewableEnergy/Ratio"
+			self.publishIfNew(timestamp, topic, ratioRenewable)
 			
-		except KeyError:
+		except 	Exception,e: print str(e)
 			return 
 	
 if __name__ == '__main__':
