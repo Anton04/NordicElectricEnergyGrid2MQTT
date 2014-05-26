@@ -25,7 +25,7 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
 		self.will_set( topic =  "system/" + self.prefix, payload="Offline", qos=1, retain=True)
     		print "Connecting"
     		self.connect(ip,keepalive=10)
-    		self.subscribe(self.prefix + "/#", 0)
+    		#self.subscribe(self.prefix + "/#", 0)
     		self.on_connect = self.mqtt_on_connect
     		self.on_message = self.mqtt_on_message
     		self.publish(topic = "system/"+ self.prefix, payload="Online", qos=1, retain=True)
