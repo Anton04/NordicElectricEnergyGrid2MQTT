@@ -22,7 +22,7 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
     		if user != None:
     			self.username_pw_set(user,password)
 
-		self.will_set( topic =  "system/" + self.prefix, payload="Offline", qos=1, retain=True)
+		self.will_set( topic =  "system/" + self.clientId, payload="Offline", qos=1, retain=True)
     		print "Connecting"
     		self.connect(ip,keepalive=10)
     		#self.subscribe(self.prefix + "/#", 0)
