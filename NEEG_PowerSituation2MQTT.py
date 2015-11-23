@@ -40,7 +40,7 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
 
 	def mqtt_on_connect(self, selfX,mosq, result):
     		print "MQTT connected!"
-		self.publish(topic = "system/"+ self.prefix, payload="Online", qos=1, retain=True)
+		self.publish(topic = "system/"+ self.clientId, payload="Online", qos=1, retain=True)
     		#self.subscribe(self.prefix + "/#", 0)
     
   	def mqtt_on_message(self, selfX,mosq, msg):
