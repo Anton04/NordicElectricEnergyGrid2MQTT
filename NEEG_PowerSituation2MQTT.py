@@ -8,7 +8,7 @@ import requests
 import time
 
 class NEEG_DataCollector(mosquitto.Mosquitto):
-	def __init__(self,ip = "localhost", port = 1883, clientId = "NEEG2MQTT", user = "driver", password = "1234", prefix = "ElectricGridData"):
+	def __init__(self,ip = "localhost", port = 1883, clientId = "NEEG2MQTT", user = "driver", password = "1234", prefix = "Electricgrid"):
 
 		mosquitto.Mosquitto.__init__(self,clientId)
 
@@ -28,11 +28,10 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
     		#self.subscribe(self.prefix + "/#", 0)
     		self.on_connect = self.mqtt_on_connect
     		self.on_message = self.mqtt_on_message
-    		self.publish(topic = "system/"+ self.prefix, payload="Online", qos=1, retain=True)
     		
     		self.lastupdate = 0
     		self.lasttimestamp = 0
-    		self.updateperiod = 120
+    		self.updateperiod = 60
     		self.oldvalues = {}
     		self.running = True
 
@@ -41,6 +40,7 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
 
 	def mqtt_on_connect(self, selfX,mosq, result):
     		print "MQTT connected!"
+		self.publish(topic = "system/"+ self.prefix, payload="Online", qos=1, retain=True)
     		#self.subscribe(self.prefix + "/#", 0)
     
   	def mqtt_on_message(self, selfX,mosq, msg):
@@ -122,9 +122,12 @@ class NEEG_DataCollector(mosquitto.Mosquitto):
 			if self.oldvalues[topic] == value:
 				#Same value ignore
 				return False
-						
-		update = json.dumps({"time":timestamp,"value":value})
-		self.publish(topic,update)		
+		
+		try:				
+			update = json.dumps({"time":float(timestamp)/1000.0,"power":float(value)*1000000})
+			self.publish(topic,update)		
+		except ValueError:
+			return False
 			
 		#Save new value
 		self.oldvalues[topic] = value
@@ -191,7 +194,7 @@ if __name__ == '__main__':
 	prefix = config.get("MQTTServer","Prefix")
 
 	#Create the data collector the power situation
-	neeg2mqtt = NEEG_DataCollector(ip, port,"NEEG2MQTT", user, password)
+	neeg2mqtt = NEEG_DataCollector(ip, port,"NEEG2MQTT", user, password,prefix)
 	
 	neeg2mqtt.RunCollection()
 	
